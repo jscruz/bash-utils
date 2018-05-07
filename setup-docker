@@ -1,12 +1,15 @@
 #!/bin/bash
-
+# This script changes the IP in the docker client to be the ip of the active interface. 
+# Requirements: Systemd, docker
+# More intructions needed previously in: https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd
 DATIME=$(date '+%d-%m-%Y %H:%M:%S');
 MODIFIEDTAGLINE="# [$DATIME] This file has been modified automatically by docker-setup"
 INTERFACE=`/sbin/route -n | grep "^0.0.0.0" | rev | cut -d' ' -f1 | rev`
 IP=`ifconfig $INTERFACE | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v 255`
+# The FILE variable is the absolute path for the docker service
 FILE=/usr/lib/systemd/system/docker.service.d/startup_options.conf
 
-echo "My local IP is $IP"
+echo "My IP is $IP from interface $INTERFACE"
 echo "Applying to /etc/systemd/system/docker.service.d/startup_options.conf"
 
 sed -i '$ d' $FILE
